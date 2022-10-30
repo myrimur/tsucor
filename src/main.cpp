@@ -17,9 +17,10 @@ public:
         std::cout << "Corout::operator()(" << arg << ")" << std::endl;
         return arg;
     }
+
 private:
-    inline static std::forward_list<std::jmp_buf> running{};
-    inline static std::forward_list<std::jmp_buf> idle{};
+    static std::forward_list<std::jmp_buf> running;
+    static std::forward_list<std::jmp_buf> idle;
 
     void* pass(void* arg);
     void start();
