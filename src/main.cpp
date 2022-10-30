@@ -8,12 +8,23 @@
 #include "picoro.hpp"
 
 class Corout {
-    inline static std::forward_list<std::jmp_buf> running{};
-    inline static std::forward_list<std::jmp_buf> idle{};
+public:
+    bool resumable();
+    void* resume(void *arg);
+    void* yield(void* arg);
+
     void* operator()(void* arg) {
         std::cout << "Corout::operator()(" << arg << ")" << std::endl;
         return arg;
     }
+private:
+    inline static std::forward_list<std::jmp_buf> running{};
+    inline static std::forward_list<std::jmp_buf> idle{};
+
+    void* pass(void* arg);
+    void start();
+    void main(void*);
+
 };
 
 void* hello(void* arg) {
