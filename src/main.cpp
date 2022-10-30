@@ -2,13 +2,14 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include <iostream>
+#include <csetjmp>
+#include <forward_list>
 #include "options_parser.h"
 #include "picoro.hpp"
 
 class Corout {
-    Corout& first;
-    Corout& running;
-    Corout& idle;
+    inline static std::forward_list<std::jmp_buf> running{};
+    inline static std::forward_list<std::jmp_buf> idle{};
     void* operator()(void* arg) {
         std::cout << "Corout::operator()(" << arg << ")" << std::endl;
         return arg;
