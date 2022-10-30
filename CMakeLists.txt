@@ -55,10 +55,10 @@ include(cmake/CompilerWarnings.cmake)
 ##########################################################
 
 #! Project main executable source compilation
-add_executable(${PROJECT_NAME} src/main.cpp options_parser/options_parser.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/picoro.cpp)
 
 #! Put path to your project headers
-target_include_directories(${PROJECT_NAME} PRIVATE options_parser)
+target_include_directories(${PROJECT_NAME} PRIVATE options_parser inc)
 
 #! Add external packages
 # options_parser requires boost::program_options library
