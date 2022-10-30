@@ -3,17 +3,13 @@
 
 #include <iostream>
 #include <csetjmp>
-#include <vector>
 #include "options_parser.h"
 #include "picoro.hpp"
 
 class Corout {
 public:
     Corout() {
-        if (running.empty()) {
-            running.emplace_back();
-        }
-        if (idle.empty() && !setjmp(running.front())) {
+        if (!idle && !setjmp(running->state)) {
             start();
         }
     }
@@ -28,8 +24,12 @@ public:
     }
 
 private:
-    static std::vector<std::jmp_buf> running;
-    static std::vector<std::jmp_buf> idle;
+    static Corout first;
+    static std::unique_ptr<Corout> running;
+    inline static std::unique_ptr<Corout> idle{};
+
+    std::unique_ptr<Corout> next{};
+    std::jmp_buf state{};
 
     void* pass(void* arg);
     void start();
@@ -37,8 +37,8 @@ private:
 
 };
 
-std::vector<std::jmp_buf> Corout::running{};
-std::vector<std::jmp_buf> Corout::idle{};
+Corout Corout::first{};
+std::unique_ptr<Corout> Corout::running{&Corout::first};
 
 void* hello(void* arg) {
     for (int i = 0; i < 5; ++i) {
