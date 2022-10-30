@@ -9,7 +9,7 @@
 class Corout {
 public:
     Corout() {
-        if (idle.empty() && !setjmp(running.front()->state)) {
+        if (idle.empty() && !setjmp(*running.front())) {
             start();
         }
         //TODO: resume
@@ -25,20 +25,16 @@ public:
     }
 
 private:
-    static std::unique_ptr<Corout> first;
-    static std::vector<std::unique_ptr<Corout>> running;
-    inline static std::vector<std::unique_ptr<Corout>> idle{};
+    inline static std::jmp_buf first{};
+    inline static std::vector<std::jmp_buf*> running{&Corout::first};
+    inline static std::vector<std::jmp_buf*> idle{};
 
-    std::unique_ptr<Corout> next{};
     std::jmp_buf state{};
 
     void* pass(void* arg);
     void start();
     void main(void*);
 };
-
-//Corout Corout::first{};
-std::vector<std::unique_ptr<Corout>> Corout::running{Corout::first};
 
 void* hello(void* arg) {
     for (int i = 0; i < 5; ++i) {
