@@ -3,12 +3,21 @@
 
 #include <iostream>
 #include <csetjmp>
-#include <forward_list>
+#include <vector>
 #include "options_parser.h"
 #include "picoro.hpp"
 
 class Corout {
 public:
+    Corout() {
+        if (running.empty()) {
+            running.emplace_back();
+        }
+        if (idle.empty() && !setjmp(running.front())) {
+            start();
+        }
+    }
+
     bool resumable();
     void* resume(void *arg);
     void* yield(void* arg);
@@ -19,14 +28,17 @@ public:
     }
 
 private:
-    static std::forward_list<std::jmp_buf> running;
-    static std::forward_list<std::jmp_buf> idle;
+    static std::vector<std::jmp_buf> running;
+    static std::vector<std::jmp_buf> idle;
 
     void* pass(void* arg);
     void start();
     void main(void*);
 
 };
+
+std::vector<std::jmp_buf> Corout::running{};
+std::vector<std::jmp_buf> Corout::idle{};
 
 void* hello(void* arg) {
     for (int i = 0; i < 5; ++i) {
