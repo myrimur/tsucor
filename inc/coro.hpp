@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-using CoroFn = void (*)(void* arg);
+using CoroFn = void* (*)(void* arg);
 using u64 = std::uint64_t;
 
 class Coro {
@@ -30,6 +30,6 @@ private:
     u64* stack_alloc = nullptr;  // Allocated memory for stack
 };
 
-extern "C" void pass(Coro* from, Coro* to);
+extern "C" void* pass(Coro* from, Coro* to, void* arg);
 
 #endif //TSUCOR_CORO_HPP

@@ -1,4 +1,4 @@
-# pass(from, to): pass execution from one coroutine to another
+# pass(from, to, arg): pass execution from one coroutine to another
 .text
 .global pass
 pass:
@@ -12,10 +12,8 @@ push r13
 push r14
 push r15
 
-# Save old stack pointer
-mov [rdi], rsp
-# Load new stack pointer
-mov rsp, [rsi]
+mov [rdi], rsp  # Save old stack pointer
+mov rsp, [rsi]  # Load new stack pointer
 
 # Restore preserved regs from new stack
 pop r15
@@ -25,4 +23,6 @@ pop r12
 pop rbx
 pop rbp
 pop rdi
+
+mov rax, rdx  # Pass arg to new coroutine
 ret
