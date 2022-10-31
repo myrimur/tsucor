@@ -1,8 +1,8 @@
 #include "coro.hpp"
 
-std::unique_ptr<Coro> Coro::running{new Coro{}};
-
 Coro::Coro(CoroFn fn, void* arg, int stack_size) {
+    caller = running;
+
     stack_alloc = new u64[stack_size / sizeof(u64)];
     stack_top = stack_alloc + stack_size / sizeof(u64) - 1;
 
@@ -12,8 +12,12 @@ Coro::Coro(CoroFn fn, void* arg, int stack_size) {
     stack_top -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
 }
 
-void Coro::resume() {
-    auto temp = Coro::running.get();
-    Coro::running{this};
-    pass(Coro::running.get(), this);
+void* Coro::resume(void* arg) {
+    running = this;
+    return pass(caller, this, arg);
+}
+
+void* Coro::yield(void* arg) {
+    running = caller;
+    return pass(this, caller, arg);
 }

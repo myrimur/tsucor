@@ -1,5 +1,4 @@
 # pass(from, to, arg): pass execution from one coroutine to another
-.text
 .global pass
 pass:
 
