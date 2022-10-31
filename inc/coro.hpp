@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-using CoroFn = void* (*)(void* arg);
+using CoroFn = void (*)(void* arg);
 using u64 = std::uint64_t;
 
 class Coro {

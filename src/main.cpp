@@ -7,7 +7,7 @@
 Coro* main_co;
 Coro* sub_co;
 
-void* sub(void* arg) {
+void sub(void* arg) {
     int i; // random local, to see stack pointer
     int a = 1;
     int b = 2;
@@ -15,7 +15,6 @@ void* sub(void* arg) {
     pass(sub_co, main_co, &a); // back to main
     std::cout << "Back in sub. Stack=" << &i << std::endl;
     pass(sub_co, main_co, &b); // back to main
-    return nullptr;
 }
 
 int main(int argc, char* argv[]) {
