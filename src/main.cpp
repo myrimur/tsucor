@@ -10,20 +10,25 @@ Coro* sub_co;
 void sub(void* arg) {
     int i; // random local, to see stack pointer
     std::cout << "Inside sub-coroutine. Stack=" << &i << std::endl;
-    pass(sub_co, main_co); // back to main
+    main_co->resume();
+//    pass(sub_co, main_co); // back to main
     std::cout << "Back in sub. Stack=" << &i << std::endl;
-    pass(sub_co, main_co); // back to main
+//    pass(sub_co, main_co); // back to main
+    main_co->resume();
 }
 
 int main(int argc, char* argv[]) {
     int i;
     std::cout << "Making coroutines. Stack=" << &i << std::endl;
-    main_co = new Coro{};
+//    main_co = new Coro{};
     sub_co = new Coro{sub, nullptr};
     std::cout << "Switching to coroutine" << std::endl;
-    pass(main_co, sub_co);
+    sub_co->resume();
+
+//    pass(main_co, sub_co);
     std::cout << "Back in main from coroutine. Stack=" << &i << std::endl;
-    pass(main_co, sub_co);
+    sub_co->resume();
+//    pass(main_co, sub_co);
     std::cout << "End" << std::endl;
     delete main_co;
     delete sub_co;
