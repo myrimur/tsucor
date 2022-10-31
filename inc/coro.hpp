@@ -3,31 +3,39 @@
 
 #include <iostream>
 #include <memory>
+#include <stack>
 
 using CoroFn = void (*)(void* arg);
 using u64 = std::uint64_t;
 
 class Coro {
 public:
-    // Used to make the first coroutine
-    Coro() = default;
+    Coro() = default;  // Used to make the first coroutine
 
-    Coro(CoroFn fn, void* arg, int stack_size = 1024 * 1024);
+    explicit Coro(CoroFn fn, void* arg = nullptr, int stack_size = 1 << 10);
 
-    ~Coro() {
-        delete[] stack_alloc;
-    }
+    Coro(const Coro&) = delete;
 
-    void* resume(void* arg = nullptr);
-    void* yield(void* arg = nullptr);
+    Coro& operator=(const Coro&) = delete;
+
+    Coro(Coro&&) = delete;
+
+    ~Coro() = default;
+
+    void* pass(Coro* to, void* arg = nullptr);
+
+    void* operator()(void* arg = nullptr);
+
+    static void* yield(void* arg = nullptr);
 
     inline static std::unique_ptr<Coro> first = std::make_unique<Coro>();
-    inline static Coro* running = first.get();
 
 private:
+    inline static Coro* running = first.get();
+    inline static std::stack<Coro*> idle{};
+
     u64* stack_top = nullptr;  // Top of coroutine's stack
-    u64* stack_alloc = nullptr;  // Allocated memory for stack
-    Coro* caller = nullptr;
+    std::unique_ptr<u64[]> stack_alloc{};  // Allocated memory for stack
 };
 
 extern "C" void* pass(Coro* from, Coro* to, void* arg);

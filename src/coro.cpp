@@ -1,10 +1,8 @@
 #include "coro.hpp"
 
 Coro::Coro(CoroFn fn, void* arg, int stack_size) {
-    caller = running;
-
-    stack_alloc = new u64[stack_size / sizeof(u64)];
-    stack_top = stack_alloc + stack_size / sizeof(u64) - 1;
+    stack_alloc = std::make_unique<u64[]>(stack_size / sizeof(u64));
+    stack_top = stack_alloc.get() + stack_size / sizeof(u64) - 1;
 
     // Used as return address to start coroutine when pass is called for the first time
     *(--stack_top) = reinterpret_cast<u64>(fn);
@@ -12,12 +10,19 @@ Coro::Coro(CoroFn fn, void* arg, int stack_size) {
     stack_top -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
 }
 
-void* Coro::resume(void* arg) {
+void* Coro::pass(Coro* to, void* arg) {
+    return ::pass(this, to, arg);
+}
+
+void* Coro::operator()(void* arg) {
+    idle.push(running);
     running = this;
-    return pass(caller, this, arg);
+    return ::pass(idle.top(), this, arg);
 }
 
 void* Coro::yield(void* arg) {
-    running = caller;
-    return pass(this, caller, arg);
+    auto from = running;
+    running = idle.top();
+    idle.pop();
+    return ::pass(from, running, arg);
 }
