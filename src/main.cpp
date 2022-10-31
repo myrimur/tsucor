@@ -2,7 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include <iostream>
-#include <coroutine.hpp>
+#include <coro.hpp>
 
 Coro* main_co;
 Coro* sub_co;

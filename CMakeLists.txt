@@ -57,7 +57,7 @@ include(cmake/CompilerWarnings.cmake)
 ##########################################################
 
 #! Project main executable source compilation
-add_executable(${PROJECT_NAME} src/main.cpp src/coroutine.cpp src/pass.s)
+add_executable(${PROJECT_NAME} src/main.cpp src/coro.cpp src/pass.s)
 
 #! Put path to your project headers
 target_include_directories(${PROJECT_NAME} PRIVATE options_parser inc)

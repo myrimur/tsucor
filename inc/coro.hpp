@@ -1,5 +1,5 @@
-#ifndef TSUCOR_COROUTINE_HPP
-#define TSUCOR_COROUTINE_HPP
+#ifndef TSUCOR_CORO_HPP
+#define TSUCOR_CORO_HPP
 
 #include <iostream>
 
@@ -13,12 +13,12 @@ public:
 
     Coro(CoroFn fn, void* arg, int stack_size = 1024 * 1024) {
         stack_alloc = new u64[stack_size / sizeof(u64)];
-        stack = stack_alloc + stack_size / sizeof(u64) - 1;
+        stack_top = stack_alloc + stack_size / sizeof(u64) - 1;
 
         // Used as return address to start coroutine when pass is called for the first time
-        *(--stack) = reinterpret_cast<u64>(fn);
-        *(--stack) = reinterpret_cast<u64>(arg);  // rdi
-        stack -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
+        *(--stack_top) = reinterpret_cast<u64>(fn);
+        *(--stack_top) = reinterpret_cast<u64>(arg);  // rdi
+        stack_top -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
     }
 
     ~Coro() {
@@ -26,10 +26,10 @@ public:
     }
 
 private:
-    u64* stack = nullptr;  // Top of coroutine's stack
+    u64* stack_top = nullptr;  // Top of coroutine's stack
     u64* stack_alloc = nullptr;  // Allocated memory for stack
 };
 
 extern "C" void pass(Coro* from, Coro* to);
 
-#endif //TSUCOR_COROUTINE_HPP
+#endif //TSUCOR_CORO_HPP
