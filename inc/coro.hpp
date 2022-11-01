@@ -34,8 +34,8 @@ private:
     inline static Coro* running = first.get();
     inline static std::stack<Coro*> idle{};
 
-    u64* stack_top = nullptr;  // Top of coroutine's stack
-    std::unique_ptr<u64[]> stack_alloc{};  // Allocated memory for stack
+    u64* stack_top = nullptr;
+    std::unique_ptr<u64[]> stack_alloc{};
 };
 
 extern "C" void* pass(Coro* from, Coro* to, void* arg);
