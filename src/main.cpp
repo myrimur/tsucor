@@ -8,9 +8,9 @@ std::unique_ptr<Coro> sub_co;
 
 void sub(void* arg) {
     std::cout << "Inside sub" << std::endl;
-    sub_co->pass(Coro::first.get());
+    sub_co->pass(Coro::first().get());
     std::cout << "Back in sub" << std::endl;
-    sub_co->pass(Coro::first.get());
+    sub_co->pass(Coro::first().get());
 }
 
 void sub2(void* arg) {
@@ -41,9 +41,9 @@ int main() {
     std::cout << "Symmetric coroutines" << std::endl;
     sub_co = std::make_unique<Coro>(sub);
     std::cout << "Switching to sub" << std::endl;
-    Coro::first->pass(sub_co.get());
+    Coro::first()->pass(sub_co.get());
     std::cout << "Back in main from sub" << std::endl;
-    Coro::first->pass(sub_co.get());
+    Coro::first()->pass(sub_co.get());
     std::cout << "End in main\n" << std::endl;
 
     std::cout << "Asymmetric coroutines" << std::endl;

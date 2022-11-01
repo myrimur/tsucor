@@ -22,10 +22,11 @@ public:
     void* operator()(void* arg = nullptr);
     static void* yield(void* arg = nullptr);
 
-    inline static std::unique_ptr<Coro> first = std::make_unique<Coro>();
+    static const std::unique_ptr<Coro>& first() { return first_; };
 
 private:
-    inline static Coro* running = first.get();
+    inline static std::unique_ptr<Coro> first_ = std::make_unique<Coro>();
+    inline static Coro* running = first_.get();
     inline static std::stack<Coro*> idle{};
 
     u64* stack_top = nullptr;  // Top of coroutine's stack
