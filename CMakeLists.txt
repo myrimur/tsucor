@@ -60,14 +60,7 @@ include(cmake/CompilerWarnings.cmake)
 add_executable(${PROJECT_NAME} src/main.cpp src/coro.cpp src/pass.s)
 
 #! Put path to your project headers
-target_include_directories(${PROJECT_NAME} PRIVATE options_parser inc)
-
-#! Add external packages
-# options_parser requires boost::program_options library
-find_package(Boost 1.71.0 COMPONENTS program_options system REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} Boost::program_options Boost::system)
-
+target_include_directories(${PROJECT_NAME} PRIVATE inc)
 						
 ##########################################################
 # Fixed CMakeLists.txt part 
