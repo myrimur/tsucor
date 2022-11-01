@@ -10,8 +10,8 @@ Coro::Coro(CoroFn fn, void* arg, int stack_size) {
     stack_top -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
 }
 
-void* Coro::pass(Coro* to, void* arg) {
-    return ::pass(this, to, arg);
+void* Coro::pass(const Coro& to, void* arg) const {
+    return ::pass(this, &to, arg);
 }
 
 void* Coro::operator()(void* arg) {

@@ -18,21 +18,21 @@ public:
     Coro(Coro&&) = delete;
     ~Coro() = default;
 
-    void* pass(Coro* to, void* arg = nullptr);
+    void* pass(const Coro& to, void* arg = nullptr) const;
     void* operator()(void* arg = nullptr);
     static void* yield(void* arg = nullptr);
 
-    static const std::unique_ptr<Coro>& first() { return first_; };
+    static const Coro& first() { return *first_; };
 
 private:
-    inline static std::unique_ptr<Coro> first_ = std::make_unique<Coro>();
-    inline static Coro* running = first_.get();
+    inline static auto first_ = std::make_unique<Coro>();
+    inline static auto running = first_.get();
     inline static std::stack<Coro*> idle{};
 
     u64* stack_top = nullptr;
     std::unique_ptr<u64[]> stack_alloc{};
 };
 
-extern "C" void* pass(Coro* from, Coro* to, void* arg);
+extern "C" void* pass(const Coro* from, const Coro* to, void* arg);
 
 #endif //TSUCOR_CORO_HPP
