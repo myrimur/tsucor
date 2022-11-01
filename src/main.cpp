@@ -37,7 +37,7 @@ void gen(void* arg) {
     Coro::yield(nullptr);
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     std::cout << "Symmetric coroutines" << std::endl;
     sub_co = std::make_unique<Coro>(sub);
     std::cout << "Switching to sub" << std::endl;
