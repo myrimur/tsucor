@@ -10,9 +10,9 @@ Coro sub_co{sub};
 
 void sub(void* arg) {
     std::cout << "Inside sub" << std::endl;
-    sub_co.pass(Coro::first.get());
+    sub_co.pass(Coro::first().get());
     std::cout << "Back in sub" << std::endl;
-    sub_co.pass(Coro::first.get());
+    sub_co.pass(Coro::first().get());
 }
 
 void sub2(void* arg) {
@@ -42,9 +42,9 @@ void gen(void* arg) {
 int main() {
     std::cout << "Symmetric coroutines" << std::endl;
     std::cout << "Switching to sub" << std::endl;
-    Coro::first->pass(&sub_co);
+    Coro::first()->pass(&sub_co);
     std::cout << "Back in main from sub" << std::endl;
-    Coro::first->pass(&sub_co);
+    Coro::first()->pass(&sub_co);
     std::cout << "End in main\n" << std::endl;
 
     std::cout << "Asymmetric coroutines" << std::endl;

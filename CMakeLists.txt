@@ -42,7 +42,11 @@ set(ENABLE_TSan OFF)
 set(ENABLE_MSAN OFF)
 
 # Assembler options
-set(CMAKE_ASM_FLAGS "-masm=intel")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	set(CMAKE_ASM_FLAGS "-masm=intel")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	set(CMAKE_ASM_FLAGS "-masm=intel -Wa,-msyntax=intel,-mnaked-reg")
+endif()
 
 #! Be default -- build release version if not specified otherwise.
 if (NOT CMAKE_BUILD_TYPE)
