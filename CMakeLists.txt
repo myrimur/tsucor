@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
-#! Check every comment after the "#!"
+set(LIB_NAME tsucor)
+set(PROJECT_NAME tsucor_example)
 
-#! CHANGE YOUR PROJECT NAME
-#  It is used as your project's main executable name. 
-set(PROJECT_NAME tsucor)
 project(${PROJECT_NAME} C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -60,22 +58,23 @@ include(cmake/CompilerWarnings.cmake)
 # Project files, packages, libraries and so on
 ##########################################################
 
-#! Project main executable source compilation
-add_executable(${PROJECT_NAME} src/main.cpp src/coro.cpp src/pass.s)
+add_library(${LIB_NAME} SHARED src/coro.cpp src/pass.s)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
-#! Put path to your project headers
-target_include_directories(${PROJECT_NAME} PRIVATE inc)
-						
-##########################################################
-# Fixed CMakeLists.txt part 
-##########################################################
+target_include_directories(${LIB_NAME} PUBLIC inc)
 
-INSTALL(PROGRAMS
+target_link_libraries(${PROJECT_NAME} ${LIB_NAME})
+
+install(PROGRAMS
+		$<TARGET_FILE:${LIB_NAME}>	# ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}
+		DESTINATION lib)
+
+install(PROGRAMS
 		$<TARGET_FILE:${PROJECT_NAME}>	# ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}
 		DESTINATION bin)
 
 # Define ALL_TARGETS variable to use in PVS and Sanitizers
-set(ALL_TARGETS ${PROJECT_NAME})
+set(ALL_TARGETS ${PROJECT_NAME} ${LIB_NAME})
 
 # Include CMake setup
 include(cmake/main-config.cmake)

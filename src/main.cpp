@@ -5,8 +5,10 @@
 #include <coro.hpp>
 
 void sub(void* arg);
+void sub1(void* arg);
 
 Coro sub_co{sub};
+Coro sub1_co{sub1};
 
 void sub(void* arg) {
     std::cout << "Inside sub" << std::endl;
@@ -48,7 +50,6 @@ int main() {
     std::cout << "End in main\n" << std::endl;
 
     std::cout << "Asymmetric coroutines" << std::endl;
-    Coro sub1_co{sub1};
     std::cout << "Switching to sub1" << std::endl;
     sub1_co();
     std::cout << "Back in main from sub1" << std::endl;
