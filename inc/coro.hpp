@@ -15,7 +15,10 @@ public:
 
     BaseCoro(const BaseCoro&) = delete;
     BaseCoro& operator=(const BaseCoro&) = delete;
-    BaseCoro(BaseCoro&&) = delete;
+
+    BaseCoro(BaseCoro&& other) noexcept;
+    BaseCoro& operator=(BaseCoro&& other) noexcept;
+
     ~BaseCoro() = default;
 
 protected:

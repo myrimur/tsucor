@@ -10,6 +10,16 @@ BaseCoro::BaseCoro(CoroFn fn, void* arg, int stack_size) {
     stack_top_ -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
 }
 
+BaseCoro::BaseCoro(BaseCoro&& other) noexcept {
+    *this = std::move(other);
+}
+
+BaseCoro& BaseCoro::operator=(BaseCoro&& other) noexcept {
+    stack_top_ = other.stack_top_;
+    stack_alloc_ = std::move(other.stack_alloc_);
+    return *this;
+}
+
 void* SymCoro::yield(void* arg) {
     auto from = running_;
     running_ = first_.get();
