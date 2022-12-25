@@ -1,28 +1,36 @@
 #include "coro.hpp"
 
-Coro::Coro(CoroFn fn, void* arg, int stack_size) {
-    stack_alloc = std::make_unique<u64[]>(stack_size / sizeof(u64));
-    stack_top = stack_alloc.get() + stack_size / sizeof(u64) - 1;
+BaseCoro::BaseCoro(CoroFn fn, void* arg, int stack_size) {
+    stack_alloc_ = std::make_unique<u64[]>(stack_size / sizeof(u64));
+    stack_top_ = stack_alloc_.get() + stack_size / sizeof(u64) - 1;
 
     // Used as return address to start coroutine when pass is called for the first time
-    *(--stack_top) = reinterpret_cast<u64>(fn);
-    *(--stack_top) = reinterpret_cast<u64>(arg);  // rdi
-    stack_top -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
+    *(--stack_top_) = reinterpret_cast<u64>(fn);
+    *(--stack_top_) = reinterpret_cast<u64>(arg);  // rdi
+    stack_top_ -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
 }
 
-void* Coro::pass(const Coro& to, void* arg) const {
-    return ::pass(this, &to, arg);
+void* SymCoro::yield(void* arg) {
+    auto from = running_;
+    running_ = first_.get();
+    return ::pass(from, running_, arg);
 }
 
-void* Coro::operator()(void* arg) {
-    idle.push(running);
-    running = this;
-    return ::pass(idle.top(), this, arg);
+void* SymCoro::operator()(void* arg) {
+    auto from = running_;
+    running_ = this;
+    return ::pass(from, running_, arg);
 }
 
-void* Coro::yield(void* arg) {
-    auto from = running;
-    running = idle.top();
-    idle.pop();
-    return ::pass(from, running, arg);
+void* AsymCoro::yield(void* arg) {
+    auto from = running_;
+    running_ = idle_.top();
+    idle_.pop();
+    return ::pass(from, running_, arg);
+}
+
+void* AsymCoro::operator()(void* arg) {
+    idle_.push(running_);
+    running_ = this;
+    return ::pass(idle_.top(), this, arg);
 }
