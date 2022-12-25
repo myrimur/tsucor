@@ -8,31 +8,48 @@
 using CoroFn = void (*)(void* arg);
 using u64 = std::uint64_t;
 
-class Coro {
+class BaseCoro {
 public:
-    Coro() = default;  // Used to make the first coroutine
-    explicit Coro(CoroFn fn, void* arg = nullptr, int stack_size = 1 << 10);
+    BaseCoro() = default;  // Used to make the first coroutine
+    explicit BaseCoro(CoroFn fn, void* arg, int stack_size);
 
-    Coro(const Coro&) = delete;
-    Coro& operator=(const Coro&) = delete;
-    Coro(Coro&&) = delete;
-    ~Coro() = default;
+    BaseCoro(const BaseCoro&) = delete;
+    BaseCoro& operator=(const BaseCoro&) = delete;
+    BaseCoro(BaseCoro&&) = delete;
+    ~BaseCoro() = default;
 
-    void* pass(const Coro& to, void* arg = nullptr) const;
-    void* operator()(void* arg = nullptr);
-    static void* yield(void* arg = nullptr);
-
-    static const Coro& first() { return *first_; };
+protected:
+    inline static auto first_ = std::make_unique<BaseCoro>();
+    inline static auto running_ = first_.get();
 
 private:
-    inline static auto first_ = std::make_unique<Coro>();
-    inline static auto running = first_.get();
-    inline static std::stack<Coro*> idle{};
-
-    u64* stack_top = nullptr;
-    std::unique_ptr<u64[]> stack_alloc{};
+    u64* stack_top_ = nullptr;
+    std::unique_ptr<u64[]> stack_alloc_{};
 };
 
-extern "C" void* pass(const Coro* from, const Coro* to, void* arg);
+class SymCoro: public BaseCoro {
+public:
+    explicit SymCoro(CoroFn fn, void* arg = nullptr, int stack_size = 1 << 10): BaseCoro(fn, arg, stack_size) {};
+
+    // Yields to main
+    static void* yield(void* arg = nullptr);
+
+    void* operator()(void* arg = nullptr);
+};
+
+class AsymCoro: public BaseCoro {
+public:
+    explicit AsymCoro(CoroFn fn, void* arg = nullptr, int stack_size = 1 << 10): BaseCoro(fn, arg, stack_size) {};
+
+    // Yields to caller
+    static void* yield(void* arg = nullptr);
+
+    void* operator()(void* arg = nullptr);
+
+private:
+    inline static std::stack<BaseCoro*> idle_{};
+};
+
+extern "C" void* pass(const BaseCoro* from, const BaseCoro* to, void* arg);
 
 #endif //TSUCOR_CORO_HPP
