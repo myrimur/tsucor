@@ -1,8 +1,8 @@
 #include "coro.hpp"
 
 BaseCoro::BaseCoro(CoroFn fn, void* arg, int stack_size) {
-    stack_alloc_ = std::make_unique<u64[]>(stack_size / sizeof(u64));
-    stack_top_ = stack_alloc_.get() + stack_size / sizeof(u64) - 1;
+    stack_alloc_ = new u64[stack_size / sizeof(u64)];
+    stack_top_ = stack_alloc_ + stack_size / sizeof(u64) - 1;
 
     // Used as return address to start coroutine when pass is called for the first time
     *(--stack_top_) = reinterpret_cast<u64>(fn);
@@ -10,13 +10,9 @@ BaseCoro::BaseCoro(CoroFn fn, void* arg, int stack_size) {
     stack_top_ -= 6;  // Space for rbp, rbx, r12, r13, r14, r15
 }
 
-BaseCoro::BaseCoro(BaseCoro&& other) noexcept {
-    *this = std::move(other);
-}
-
 BaseCoro& BaseCoro::operator=(BaseCoro&& other) noexcept {
-    stack_top_ = other.stack_top_;
-    stack_alloc_ = std::move(other.stack_alloc_);
+    stack_top_ = std::exchange(other.stack_top_, nullptr);
+    stack_alloc_ = std::exchange(other.stack_alloc_, nullptr);
     return *this;
 }
 

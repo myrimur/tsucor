@@ -16,7 +16,8 @@ public:
     BaseCoro(const BaseCoro&) = delete;
     BaseCoro& operator=(const BaseCoro&) = delete;
 
-    BaseCoro(BaseCoro&& other) noexcept;
+    BaseCoro(BaseCoro&& other) noexcept: stack_top_{std::exchange(other.stack_top_, nullptr)},
+                                         stack_alloc_{std::exchange(other.stack_top_, nullptr)} {};
     BaseCoro& operator=(BaseCoro&& other) noexcept;
 
     ~BaseCoro() = default;
@@ -27,7 +28,7 @@ protected:
 
 private:
     u64* stack_top_ = nullptr;
-    std::unique_ptr<u64[]> stack_alloc_{};
+    u64* stack_alloc_ = nullptr;
 };
 
 class SymCoro: public BaseCoro {
