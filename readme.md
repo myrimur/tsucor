@@ -1,1 +1,1 @@
-Works only with Clang :)
+Now works with both GCC and Clang :)
